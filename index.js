@@ -1,22 +1,26 @@
+function arrToWorld(arr) {
+  return arr.map(str => {
+    var [x, y] = str.split(':').map(str => parseInt(str));
+    return new Coord (x, y);
+  })
+}
+
+function worldToArray(world) {
+  return keys(world);
+}
+
 function Coord (x, y) {
   this.x = x;
   this.y = y;
 }
 
 Coord.prototype.toString = function() {
-  return `x${this.x}y${this.y}`;
+  return `${this.x}:${this.y}`;
 }
 
 function keys (obj) {
   return Object.keys(obj);
 }
-
-var start = {
-  'x0y0' : new Coord(0, 0),
-  'x1y0' : new Coord(1, 0),
-  'x0y1' : new Coord(0, 1),
-  'x1y1' : new Coord(1, 1)
-};
 
 function getNeighbours (coord) {
   var {x, y} = coord;
@@ -69,7 +73,9 @@ function processIntermediate (intermediateWorld) {
   return nextTick;
 }
 
-function getNextTick (world) {
+function tick (arr) {
+  var world = arrToWorld(arr);
   var intermediate = getIntermediate(world);
-  return processIntermediate(intermediate);
+  var nextTick = processIntermediate(intermediate);
+  return worldToArray(nextTick);
 }
