@@ -59,7 +59,7 @@ function markNeighbours(world, coord) {
     world[neighbourCoord] = world[neighbourCoord] || { count: 0, coord: neighbourCoord };
     world[neighbourCoord].count++;
   })
-  return world
+  return world;
 }
 
 function processIntermediate (intermediateWorld) {
