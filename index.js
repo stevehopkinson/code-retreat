@@ -1,4 +1,4 @@
-function Coord(x, y) {
+function Coord (x, y) {
   this.x = x;
   this.y = y;
 }
@@ -6,6 +6,17 @@ function Coord(x, y) {
 Coord.prototype.toString = function() {
   return `x${this.x}y${this.y}`;
 }
+
+function keys (obj) {
+  return Object.keys(obj);
+}
+
+var start = {
+  'x0y0' : new Coord(0, 0),
+  'x1y0' : new Coord(1, 0),
+  'x0y1' : new Coord(0, 1),
+  'x1y1' : new Coord(1, 1)
+};
 
 function getNeighbours (coord) {
   var {x, y} = coord;
@@ -24,26 +35,41 @@ function getNeighbours (coord) {
 
 function getIntermediate (world) {
   var intermediateWorld = {};
-  Object.keys(world).forEach(
-    key => {
-      let coord = world[key];
-      intermediateWorld[coord] = intermediateWorld[coord] || { count: 0, coord };
-      intermediateWorld[coord].alive = true;
-      let neighbours = getNeighbours(coord);
-      neighbours.forEach(
-        neighbourCoord => {
-          intermediateWorld[neighbourCoord] = intermediateWorld[neighbourCoord] || { count: 0 };
-          intermediateWorld[neighbourCoord].count++;
-        }
-      )
-    }
-  )
+  keys(world).forEach(key => {
+    let coord = world[key];
+    markAlive(intermediateWorld, coord);
+    markNeighbours(intermediateWorld, coord);
+  })
   return intermediateWorld;
 }
 
-function getNextTick (intermediateWorld) {
-  var nextTick = {};
-  Object.keys(intermediateWorld)
+function markAlive(world, coord) {
+  world[coord] = world[coord] || { count: 0, coord };
+  world[coord].alive = true;
+  return world;
 }
 
-module.exports = {Coord, getNeighbours};
+function markNeighbours(world, coord) {
+  let neighbours = getNeighbours(coord);
+  neighbours.forEach(neighbourCoord => {
+    world[neighbourCoord] = world[neighbourCoord] || { count: 0, coord: neighbourCoord };
+    world[neighbourCoord].count++;
+  })
+  return world
+}
+
+function processIntermediate (intermediateWorld) {
+  var nextTick = {};
+  keys(intermediateWorld).forEach(key => {
+    var cell = intermediateWorld[key];
+    if (cell.count === 3 || (cell.alive && cell.count === 2)) {
+      nextTick[cell.coord] = cell.coord;
+    }
+  })
+  return nextTick;
+}
+
+function getNextTick (world) {
+  var intermediate = getIntermediate(world);
+  return processIntermediate(intermediate);
+}
